@@ -50,13 +50,33 @@ class Job(BaseModel):
         Person, related_name='was_filled_by', null = False)
 
 
+class Department(BaseModel):
+    """
+        This class defines Department, which maintains details of in
+        which Department a Person held a Job
+    """
+
+    dept_number = pw.CharField(primary_key=True, max_length=30)
+    dept_name = pw.CharField(max_length=30)
+    dept_manager = pw.CharField(max_length=30)
+    job = pw.ForeignKeyField(
+        Job, related_name='job_name', null=False)
+    query_job_details = Job.select().where(Job.job_name == job)
+    dur_job_held = query_job_details.end_date - query_job_details.start_date
+
+    def show(self):
+        """ display an instance """
+        print(self.dept_number, self.dept_name, self.dept_manager, self.job, self.dur_job_held)
+
+
 def main():
     """ add and print some records """
     db.connect()
     db.execute_sql('PRAGMA foreign_keys = ON;')
     db.create_tables([
         Job,
-        Person
+        Person,
+        Department
     ])
 
     people = [
@@ -105,6 +125,34 @@ def main():
             logger.info(f'Error creating job = {job[0]}')
             logger.info(e)
             logger.info('See how the datbase protects data across tables')
+
+    depts = [
+        ('A101', 'Flight Controls', 'Steve Louthain', 'Analyst'),
+        ('B245', 'Stability and Control', 'Brian Jaspers', 'Developer'),
+        ('Q456', 'Advanced Research', 'Manager McManagerface', 'Dog Catcher'),
+        ('1234', 'Dept of bad naming conventions', 'Micro-manager', 'Analyst'),
+        ('C12345', 'Dept of too long numbers', 'Macro-manager', 'Developer')
+    ]
+
+    for dept in depts:
+        try:
+            with db.transaction():
+                new_dept = Department.create(
+                    dept_number=dept[0],
+                    dept_name=dept[1],
+                    dept_manager=dept[2],
+                    job=dept[3],
+                )
+                new_dept.save()
+
+        except Exception as e:
+            logger.info(f'Error creating department = {dept[0]}')
+            logger.info(e)
+            logger.info('Database protects adding department when a job does not exist for it')
+
+    for dept in Department:
+        dept.show()
+
 
     logger.info("don't forget - but can you find a better way?")
     db.close()
