@@ -63,20 +63,20 @@ class Job(BaseModel):
     salary = pw.DecimalField(max_digits=7, decimal_places=2)
     person_employed = pw.ForeignKeyField(
         Person, related_name='was_filled_by', null=False)
-    dept_name = pw.ForeignKeyField(Department, related_name='dept_name', null=False)
+    dept_name_for_job = pw.ForeignKeyField(Department, related_name='related_dept_name', null=False)
 
     def show(self):
         """ display an instance """
-        print(self.job_name, self.start_date, self.end_date, self.salary, self.person_employed, self.dept_name)
+        print(self.job_name, self.start_date, self.end_date, self.salary, self.person_employed, self.dept_name_for_job)
 
 def main():
     """ add and print some records """
     db.connect()
     db.execute_sql('PRAGMA foreign_keys = ON;')
     db.create_tables([
-        Job,
+        Person,
         Department,
-        Person
+        Job
     ])
 
     people = [
@@ -143,7 +143,7 @@ def main():
                     end_date=job[2],
                     salary=job[3],
                     person_employed=job[4],
-                    dept_name=job[5], )
+                    dept_name_for_job=job[5], )
                 new_job.save()
 
                 # query_job_details = Job.select().where(Job.job_name == job)
