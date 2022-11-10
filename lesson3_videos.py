@@ -41,8 +41,8 @@ class Department(BaseModel):
         which Department a Person held a Job
     """
 
-    dept_number = pw.CharField(primary_key=True, max_length=30)
-    dept_name = pw.CharField(max_length=30)
+    dept_number = pw.CharField(max_length=30)
+    dept_name = pw.CharField(primary_key=True, max_length=30)
     dept_manager = pw.ForeignKeyField(Person, related_name='person', null=False)
 
     def show(self):
